@@ -1,36 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# My Blog
 
-## Getting Started
+A minimal personal blog built with Next.js, Material UI, Better Auth, Prisma, and SQLite. Published posts are public. Visitors can create an account without email verification to like and comment. The author uses one private role to manage drafts and published posts.
 
-First, run the development server:
+## Local setup
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. Install packages with `bun install`.
+2. Copy `.env.example` to `.env` and set a private `BETTER_AUTH_SECRET` (for example, `openssl rand -base64 32`), your owner email, and a unique owner password of at least 12 characters.
+3. Generate Prisma Client and apply the SQLite migration:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+   ```bash
+   bun run db:generate
+   bun run db:migrate
+   ```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+4. Create the owner account before making public registration available:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+   ```bash
+   bun run db:owner
+   ```
 
-## Learn More
+5. Start the app with `bun dev` and open <http://localhost:3000>.
 
-To learn more about Next.js, take a look at the following resources:
+The owner account is created separately from public registration, so a reader cannot claim author privileges by choosing the same email address. Reader signups receive the `reader` role; only the setup command creates an author.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Features
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- One editor page for drafts and published posts, with autosave and publish/unpublish controls.
+- Public home and article pages, with “load more” pagination.
+- Better Auth email/password registration and sign-in.
+- Comments with editing and deletion for their author, and deletion by the blog owner.
+- One like per account per article, with repeat clicks to remove a like.
+- Comment rate limit of five comments per account per minute.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The SQLite file is stored at `prisma/dev.db` by default. A deployed instance needs a persistent writable disk for that file and the generated Prisma client at build time.
